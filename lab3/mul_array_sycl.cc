@@ -10,6 +10,25 @@ namespace {
 
 class naive;
 
+void multiply_reduce(const std::vector<float>& A, std::vector<float>& res) {
+	sycl::default_selector device_selector;
+	sycl::queue q(device_selector);
+
+	size_t length = A.size();
+	cl::sycl::buffer to_reduce {A}, to_store_result {res};
+	q.submit([&](auto& h) {
+		auto A = to_reduce.get_access(h, cl::sycl::read_only);
+		auto res = to_store_result.get_access(h, cl::sycl::write_only);
+		h.single_task([=] {
+			float result = 1.0;
+			for (size_t i = 0; i < length; i++) {
+				result *= A[i];
+			}
+			res[0] = result;
+		});
+	});
+}
+
 int main() {
     std::vector<float> A, res(1);
 
@@ -26,7 +45,7 @@ int main() {
 	A.push_back(A[0] + static_cast<float>(i)/static_cast<float>(n));
     }
 
-    // please complete
+    multiply_reduce(A, res);
 
     std::cout << "res[0] = " << res[0] << std::endl;
 }
