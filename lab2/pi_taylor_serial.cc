@@ -5,9 +5,14 @@
 using my_float = float;
 
 auto pi_taylor(size_t steps) -> my_float {
-
-    // please complete
-
+	my_float result = 0;
+	my_float sign = 1;
+	for (size_t i = 0; i < steps; i++) {
+		my_float n = i;
+		result += sign / (2.0 * n + 1.0);
+		sign *= -1.0;
+	}
+	return 4.0 * result;
 }
 
 int main(int argc, const char *argv[]) {
